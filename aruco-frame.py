@@ -301,7 +301,8 @@ def main():
         filename_out = args.output
 
     head_out, _ = os.path.split(filename_out)
-    os.makedirs(head_out, exist_ok=True)
+    if head_out != "":
+        os.makedirs(head_out, exist_ok=True)
 
     print(f"Processing: '{filename_in}' -> '{filename_out}'")
 
