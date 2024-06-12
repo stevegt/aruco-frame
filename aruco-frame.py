@@ -28,7 +28,7 @@ def parse_arguments():
                         help="Frame configuration file (default: ./config/config.json).")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="Verbose mode (default: false).")
-    return parser.parse_args()
+    return parser.parse_known_args()
 
 
 def imshow(img, h_view=700, win_name="debug"):
@@ -291,20 +291,11 @@ def load_config_frames(filename):
 
 
 def main():
-    args = parse_arguments()
+    args, _ = parse_arguments()
 
     filename_in = args.input
 
-    if args.output == "":
-        filename_out = os.path.splitext(filename_in)[0] + "_extracted.png"
-    else:
-        filename_out = args.output
-
-    head_out, _ = os.path.split(filename_out)
-    if head_out != "":
-        os.makedirs(head_out, exist_ok=True)
-
-    print(f"Processing: '{filename_in}' -> '{filename_out}'")
+    print(f"Processing: '{filename_in}' ...")
 
     img = cv2.imread(filename_in, cv2.IMREAD_UNCHANGED)
 
@@ -316,6 +307,17 @@ def main():
     else:
         img_out, dpi = process_image(img, config_frames,
                                      solve_dist=True, view=args.show, verbose=args.verbose, dpi=args.dpi)
+
+    if args.output == "":
+        filename_out = os.path.splitext(filename_in)[0] + f"_{dpi}_DPI.png"
+    else:
+        filename_out = args.output
+
+    head_out, _ = os.path.split(filename_out)
+    if head_out != "":
+        os.makedirs(head_out, exist_ok=True)
+
+    print(f"Writing: '{filename_out}' ...")
 
     utils.writePNGwithdpi(filename_out, img_out, dpi=(dpi, dpi))
 
