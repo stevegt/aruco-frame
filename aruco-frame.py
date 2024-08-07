@@ -13,7 +13,7 @@ import solve_lens
 
 def parse_arguments():
     usage_text = (
-        "Usage:  python aruco-frame.py [options]"
+        "Extracts the image from an image containing an aruco frame"
     )
     parser = argparse.ArgumentParser(description=usage_text)
     parser.add_argument("-i", "--input", type=str,
