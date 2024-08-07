@@ -7,8 +7,7 @@ import argparse
 import cv2
 import numpy as np
 
-import utils
-import solve_lens
+from utils import solve_lens, misc
 
 
 def parse_arguments():
@@ -215,7 +214,7 @@ def process_image(img, config_frames, solve_dist=False, view=False, view_radius=
     config = config_frames[frame_name]
 
     xy_a, uv_a = get_aruco_features(img_rgb, config)
-    proj = utils.solve_affine(xy_a, uv_a)
+    proj = misc.solve_affine(xy_a, uv_a)
 
     if dpi is None:
         dpi = int(get_dots_per_mm(xy_a, uv_a) * 25.4)
@@ -226,7 +225,7 @@ def process_image(img, config_frames, solve_dist=False, view=False, view_radius=
 
     xy_c, uv_c = get_corner_features(img_gray, proj, config)
 
-    proj_fine = utils.solve_affine(xy_c, uv_c)
+    proj_fine = misc.solve_affine(xy_c, uv_c)
     err1 = solve_lens.xy_error(xy_c, uv_c, proj)
     err2 = solve_lens.xy_error(xy_c, uv_c, proj_fine)
     if verbose:
@@ -247,7 +246,7 @@ def process_image(img, config_frames, solve_dist=False, view=False, view_radius=
 
         for i in range(4):
             uv_u = solve_lens.undistort(params, uv_c, w)
-            proj_fine = utils.solve_affine(xy_c, uv_u)
+            proj_fine = misc.solve_affine(xy_c, uv_u)
             params = solve_lens.solve_distortion(xy_c, uv_c, proj_fine, w, w, h)
 
         uv_u = solve_lens.undistort(params, uv_c, w)
@@ -317,9 +316,11 @@ def main():
     if head_out != "":
         os.makedirs(head_out, exist_ok=True)
 
+    print(f"Using {dpi} DPI")
+
     print(f"Writing: '{filename_out}' ...")
 
-    utils.writePNGwithdpi(filename_out, img_out, dpi=(dpi, dpi))
+    misc.writePNGwithdpi(filename_out, img_out, dpi=(dpi, dpi))
 
     print("Done.")
 
