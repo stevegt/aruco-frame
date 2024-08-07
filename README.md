@@ -1,6 +1,6 @@
 # Aruco Frame
 
-![](docs/explainer.png)
+ <img src="./docs/explainer.png" width="500"/>
 
 This open source project lets you scan a drawing or image using an easy to build frame, and obtain a rectified image in real-life units. The frame exists in 3 different sizes, you can build your own by downloading the design files [here](./design).
 
