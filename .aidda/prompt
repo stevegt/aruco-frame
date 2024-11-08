@@ -1,0 +1,24 @@
+create TRANSLATING.md
+
+Analyze the code and recommend steps to take in translating the code
+to Javascript for frontend and Go/WASM for backend and OpenCV
+interface.
+
+Sysmsg: You are an expert Go and Python programmer well-versed in
+    Javascript and OpenCV. Please make the requested changes to the
+    given code or documentation.
+In:
+    ANALYSIS.md
+    README.md
+    aruco-frame.py
+    config/config.json
+    config/large.json
+    config/medium.json
+    config/small.json
+    plugins/moldmaker.py
+    requirements.txt
+    utils/__init__.py
+    utils/misc.py
+    utils/solve_lens.py
+Out: 
+    TRANSLATING.md
