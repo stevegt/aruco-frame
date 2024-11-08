@@ -1,16 +1,6 @@
 create output file list
 
-Analyze the code and recommend steps to take in translating the code
-to Javascript for frontend and Go/WASM for backend and OpenCV
-interface. The new .go, .js, .css, .html, and other files will be
-created in the x/ directory and its subdirectories.  
-
-Write the list of new files into x/MANIFEST.md.  Instead of a ASCII
-drawing of a tree structure, use a list of files and directories,
-e.g.:
-
-index.html
-styles.css
-js/main.js
-js/wasm_exec.js
-...
+Analyze the code and translat it to Javascript for frontend and
+Go/WASM for backend and OpenCV interface. The new .go, .js, .css,
+.html, and other files will be created in the x/ directory and its
+subdirectories.  

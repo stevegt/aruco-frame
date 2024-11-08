@@ -10,8 +10,6 @@ go/utils/solve_lens.go
 wasm/main.wasm
 wasm/opencv.wasm
 config/config.json
-images/
-README.md
 package.json
 webpack.config.js
 .gitignore

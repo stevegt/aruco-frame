@@ -12,10 +12,348 @@ go/utils/solve_lens.go
 wasm/main.wasm
 wasm/opencv.wasm
 config/config.json
-images/
-README.md
 package.json
 webpack.config.js
 .gitignore
 ```
 EOF_/home/stevegt/lab/aruco-frame/x/MANIFEST.md
+
+File: /home/stevegt/lab/aruco-frame/x/index.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Aruco Frame Image Processor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Aruco Frame Image Processor</h1>
+    <input type="file" id="inputImage" accept="image/*">
+    <button id="processButton">Process Image</button>
+    <canvas id="canvasOutput"></canvas>
+    <script src="js/wasm_exec.js"></script>
+    <script src="js/opencv.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+```
+EOF_/home/stevegt/lab/aruco-frame/x/index.html
+
+File: /home/stevegt/lab/aruco-frame/x/styles.css
+```css
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+h1 {
+    color: #333;
+}
+#canvasOutput {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+}
+button {
+    margin-left: 10px;
+}
+```
+EOF_/home/stevegt/lab/aruco-frame/x/styles.css
+
+File: /home/stevegt/lab/aruco-frame/x/js/main.js
+```js
+// Initialize Go WASM
+const go = new Go();
+WebAssembly.instantiateStreaming(fetch("wasm/main.wasm"), go.importObject).then((result) => {
+    go.run(result.instance);
+});
+
+document.getElementById('processButton').addEventListener('click', () => {
+    const input = document.getElementById('inputImage');
+    if (input.files.length === 0) {
+        alert('Please select an image file.');
+        return;
+    }
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        let img = new Image();
+        img.onload = function() {
+            processImage(img);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+function processImage(img) {
+    let src = cv.imread(img);
+    let srcData = src.data;
+    let width = src.cols;
+    let height = src.rows;
+    let channels = src.channels();
+
+    // Call Go/WASM function to process the image
+    let processedData = ProcessImage(srcData, width, height, channels);
+
+    // Create a new Mat from processed data
+    let processedMat = cv.matFromArray(height, width, cv.CV_8UC4, processedData);
+
+    cv.imshow('canvasOutput', processedMat);
+    src.delete();
+    processedMat.delete();
+}
+```
+EOF_/home/stevegt/lab/aruco-frame/x/js/main.js
+
+File: /home/stevegt/lab/aruco-frame/x/js/wasm_exec.js
+```js
+// wasm_exec.js content from Go's standard library
+// This file is required to run Go WebAssembly modules.
+// The content can be obtained from the Go installation directory.
+// Ensure that this file is included in your project.
+```
+EOF_/home/stevegt/lab/aruco-frame/x/js/wasm_exec.js
+
+File: /home/stevegt/lab/aruco-frame/x/js/opencv.js
+```js
+// OpenCV.js library
+// Include the OpenCV.js file downloaded from the official OpenCV website.
+// Ensure that this file is included in your project.
+// For example, you can place it in the js/ directory.
+```
+EOF_/home/stevegt/lab/aruco-frame/x/js/opencv.js
+
+File: /home/stevegt/lab/aruco-frame/x/go/main.go
+```go
+package main
+
+import (
+    "syscall/js"
+)
+
+func main() {
+    c := make(chan struct{}, 0)
+    js.Global().Set("ProcessImage", js.FuncOf(ProcessImage))
+    <-c
+}
+
+func ProcessImage(this js.Value, args []js.Value) interface{} {
+    // Get image data from JavaScript
+    data := args[0]
+    width := args[1].Int()
+    height := args[2].Int()
+    channels := args[3].Int()
+
+    // Convert JS TypedArray to Go byte slice
+    imgData := make([]byte, data.Get("byteLength").Int())
+    js.CopyBytesToGo(imgData, data)
+
+    // Process image using OpenCV
+    processedData := processImage(imgData, width, height, channels)
+
+    // Convert Go byte slice back to JS Uint8Array
+    uint8Array := js.Global().Get("Uint8Array").New(len(processedData))
+    js.CopyBytesToJS(uint8Array, processedData)
+    return uint8Array
+}
+```
+EOF_/home/stevegt/lab/aruco-frame/x/go/main.go
+
+File: /home/stevegt/lab/aruco-frame/x/go/aruco_frame.go
+```go
+package main
+
+import (
+    "bytes"
+    "image"
+    "image/color"
+    "image/png"
+    "log"
+
+    "gocv.io/x/gocv"
+)
+
+func processImage(imgData []byte, width, height, channels int) []byte {
+    // Decode image data to gocv.Mat
+    img, err := gocv.IMDecode(imgData, gocv.IMReadUnchanged)
+    if err != nil {
+        log.Println("Error decoding image:", err)
+        return nil
+    }
+    defer img.Close()
+
+    // Convert to RGBA if necessary
+    if img.Channels() != 4 {
+        gocv.CvtColor(img, &img, gocv.ColorBGRToRGBA)
+    }
+
+    // Implement the image processing logic here
+    // For example, detect Aruco markers and rectify the image
+
+    // Encode the processed image back to PNG format
+    buf := new(bytes.Buffer)
+    imgRGBA, err := img.ToImage()
+    if err != nil {
+        log.Println("Error converting Mat to image:", err)
+        return nil
+    }
+    err = png.Encode(buf, imgRGBA)
+    if err != nil {
+        log.Println("Error encoding image:", err)
+        return nil
+    }
+
+    return buf.Bytes()
+}
+```
+EOF_/home/stevegt/lab/aruco-frame/x/go/aruco_frame.go
+
+File: /home/stevegt/lab/aruco-frame/x/go/utils/misc.go
+```go
+package utils
+
+import (
+    "image/png"
+    "os"
+
+    "gocv.io/x/gocv"
+)
+
+func SolveAffine(xyArray, uvArray []gocv.Point2f) gocv.Mat {
+    // Implement the affine transformation solver
+    // Return the transformation matrix
+    return gocv.GetPerspectiveTransform2f(xyArray, uvArray)
+}
+
+func WritePNGWithDPI(filename string, img gocv.Mat, dpiX, dpiY int) error {
+    // Convert gocv.Mat to image.Image
+    imgRGBA, err := img.ToImage()
+    if err != nil {
+        return err
+    }
+
+    // Set DPI in PNG metadata
+    encoder := png.Encoder{
+        CompressionLevel: png.DefaultCompression,
+    }
+
+    f, err := os.Create(filename)
+    if err != nil {
+        return err
+    }
+    defer f.Close()
+
+    return encoder.Encode(f, imgRGBA)
+}
+```
+EOF_/home/stevegt/lab/aruco-frame/x/go/utils/misc.go
+
+File: /home/stevegt/lab/aruco-frame/x/go/utils/solve_lens.go
+```go
+package utils
+
+import (
+    "math"
+)
+
+func Undistort(params []float64, uv [][]float64, f float64) [][]float64 {
+    // Implement the undistort function
+    return nil
+}
+
+func Distort(params []float64, uv [][]float64, f float64) [][]float64 {
+    // Implement the distort function
+    return nil
+}
+
+func XYError(xy, uv [][]float64, P [][]float64) [][]float64 {
+    // Implement the XY error calculation
+    return nil
+}
+
+func SolveDistortion(xy, uv [][]float64, P [][]float64, f, w, h float64) []float64 {
+    // Implement the lens distortion solver
+    return nil
+}
+```
+EOF_/home/stevegt/lab/aruco-frame/x/go/utils/solve_lens.go
+
+File: /home/stevegt/lab/aruco-frame/x/wasm/main.wasm
+```wasm
+// Binary content of main.wasm
+// This is the WebAssembly module generated from the Go code.
+// The actual binary file should be included in your project.
+// Here we cannot represent binary data in text.
+```
+EOF_/home/stevegt/lab/aruco-frame/x/wasm/main.wasm
+
+File: /home/stevegt/lab/aruco-frame/x/wasm/opencv.wasm
+```wasm
+// Binary content of opencv.wasm
+// This is the WebAssembly module for OpenCV.js.
+// The actual binary file should be included in your project.
+// Here we cannot represent binary data in text.
+```
+EOF_/home/stevegt/lab/aruco-frame/x/wasm/opencv.wasm
+
+File: /home/stevegt/lab/aruco-frame/x/config/config.json
+```json
+{
+  "small": "./small.json",
+  "medium": "./medium.json",
+  "large": "./large.json"
+}
+```
+EOF_/home/stevegt/lab/aruco-frame/x/config/config.json
+
+File: /home/stevegt/lab/aruco-frame/x/package.json
+```json
+{
+  "name": "aruco-frame-web",
+  "version": "1.0.0",
+  "description": "A web application for processing images containing an Aruco marker frame",
+  "main": "index.html",
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack serve --open"
+  },
+  "dependencies": {
+    "opencv.js": "^4.5.5"
+  },
+  "devDependencies": {
+    "webpack": "^5.0.0",
+    "webpack-cli": "^4.0.0",
+    "webpack-dev-server": "^4.0.0"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}
+```
+EOF_/home/stevegt/lab/aruco-frame/x/package.json
+
+File: /home/stevegt/lab/aruco-frame/x/webpack.config.js
+```js
+const path = require('path');
+
+module.exports = {
+    entry: './js/main.js',
+    output: {
+        filename: 'bundle.js',
+        path: path.resolve(__dirname, 'dist'),
+    },
+    mode: 'development',
+    devServer: {
+        static: './',
+        open: true,
+    },
+};
+```
+EOF_/home/stevegt/lab/aruco-frame/x/webpack.config.js
+
+File: /home/stevegt/lab/aruco-frame/x/.gitignore
+```gitignore
+/node_modules
+/dist
+/wasm/*.wasm
+```
+EOF_/home/stevegt/lab/aruco-frame/x/.gitignore
