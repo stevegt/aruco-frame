@@ -1,3 +1,5 @@
-create ANALYSIS.md
+create TRANSLATING.md
 
-Analyze the code and describe what it does and how it works internally.
+Analyze the code and recommend steps to take in translating the code
+to Javascript for frontend and Go/WASM for backend and OpenCV
+interface.

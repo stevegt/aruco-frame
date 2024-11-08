@@ -1,14 +1,19 @@
-File: /tmp/aruco-frame/TRANSLATING.md
-```markdown
 # Translating the Aruco Frame Project to JavaScript Frontend and Go/WASM Backend with OpenCV Interface
 
 ## Introduction
 
-This document provides a detailed plan for translating the Python-based Aruco Frame project into a web application using JavaScript for the frontend and Go compiled to WebAssembly (WASM) for the backend. The goal is to replicate the functionality of the original project within a browser environment, leveraging OpenCV for computer vision tasks.
+This document provides a detailed plan for translating the
+Python-based Aruco Frame project into a web application using
+JavaScript for the frontend and Go compiled to WebAssembly (WASM) for
+the backend. The goal is to replicate the functionality of the
+original project within a browser environment, leveraging OpenCV for
+computer vision tasks.
 
 ## Current Project Overview
 
-The Aruco Frame project processes images containing an Aruco marker frame to extract a rectified version of the image in real-life units. The core functionalities include:
+The Aruco Frame project processes images containing an Aruco marker
+frame to extract a rectified version of the image in real-life units.
+The core functionalities include:
 
 - **Marker Detection**: Using OpenCV's Aruco library to detect markers.
 - **Frame Identification**: Determining the frame type based on detected markers.
@@ -160,7 +165,10 @@ The Aruco Frame project processes images containing an Aruco marker frame to ext
 
 ## Conclusion
 
-Translating the Aruco Frame project into a web application using JavaScript and Go/WASM is feasible but requires careful planning, particularly around OpenCV integration and performance optimization. By following the steps outlined above and being mindful of potential challenges, the functionality of the original Python project can be successfully replicated in a browser environment.
+Translating the Aruco Frame project into a web application using
+JavaScript and Go/WASM is feasible but requires careful planning,
+particularly around OpenCV integration and performance optimization.
+By following the steps outlined above and being mindful of potential
+challenges, the functionality of the original Python project can be
+successfully replicated in a browser environment.
 
-```
-EOF_/tmp/aruco-frame/TRANSLATING.md
