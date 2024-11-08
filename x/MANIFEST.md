@@ -1,5 +1,3 @@
-File: /home/stevegt/lab/aruco-frame/x/MANIFEST.md
-```markdown
 index.html
 styles.css
 js/main.js
@@ -17,5 +15,3 @@ README.md
 package.json
 webpack.config.js
 .gitignore
-```
-EOF_/home/stevegt/lab/aruco-frame/x/MANIFEST.md
